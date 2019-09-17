@@ -1,0 +1,17 @@
+---
+- name: Grabbing and Unzipping file
+  hosts: futurama:&ubuntuOS
+  gather_facts: yes
+
+  tasks:
+        - name: Grab Image
+          get_url:
+            url: http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-arm-uec.tar.gz
+            dest: /tmp/images
+
+        - name: Unarchive file
+          unarchive:
+                  src: /tmp/images/cirros-0.4.0-arm-uec.tar.gz
+                  dest: /tmp/images
+                  remote_src: yes 
+  

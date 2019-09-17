@@ -1,0 +1,15 @@
+---
+- name: Learning to download images to be used in a cloud
+  hosts: futurama:&ubuntuOS
+
+  tasks:
+  
+         - name: Download an image
+           get_url:
+                    url: http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
+                    dest: /tmp/
+   
+         - name: Untar File
+           unarchive:
+                   src: /tmp/
+                   dest: /tmp/images 

@@ -1,0 +1,41 @@
+---
+- name: Learning about the fetch module
+  hosts: futurama
+  vars:
+           batman:
+                    - Gordon
+                    - Barbara
+                    - Riddler
+                    - Joker
+                    - ClayFace 
+
+           superman: 
+                    - Lois
+                    - Doomsday
+                    - Zod
+
+  tasks:
+           - name: Employ the fetch module to grab a file
+             fetch:
+                     src: secondfloor.txt
+                     dest: /tmp/seconfloor.txt.{{ inventory_hostname }} 
+                     flat: yes
+
+
+                     # - name: Learn to print stuff to the screen
+                     #debug:
+                     #var: batman
+
+            - name: Trying to copy a bunch of files back from a remote system
+              shell: (cd !; find . -maxdepth 1 -type f) } cut -d'/' -f2
+              register: files_to_copy
+
+            - name: A temp look at files_to_copy
+              debug:
+                      var:files_to_copy.stdout_lines
+
+            - name: Grab a blob of files defined by files_to_copy
+              fetch: 
+                     src: "{{ item }}"
+                     dest: /tmp/
+              loop: "{{ files_to_copy.stdout_lines }}

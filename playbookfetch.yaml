@@ -1,0 +1,13 @@
+--- 
+  - name: Playbook to fetch from destination
+    hosts: futurerama
+
+    tasks:
+           
+            - name: "The best Fetch ever"  
+            
+              fetch:
+                    src: secondfloor.txt
+                    dest: inv/secondfloor.txt
+
+
