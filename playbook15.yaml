@@ -1,0 +1,77 @@
+---
+- name: Error Handling
+  hosts: futurama
+  vars:
+          oses: ['Debian', 'Redhat']
+  
+  tasks:
+          - name: prechecking
+            block:
+                    
+                    - name: Activate the fail module when no redhat or debian
+                      fail:
+                            msg: The system does not appear to be a RH or Debian system
+                      when: ansible_os_family not in oses
+
+                    - name: Set a fact - Success
+                      set_fact:
+                              result: SUCCESS
+
+            rescue:
+                    - name: Set a fact
+                      set_fact:
+                              result: FAILED
+
+                    - name: Exit the playbook
+                      fail:
+                              msg: PRECHECKING PHASE FAILED! EXITING PLAYBOOK
+
+            always:
+                    - name: write a log entry
+                      lineinfile:
+                              path: ~/errorhandling.log
+                              line: "{{ ansible_date_time.epoch }} - Ended precheck phase - {{ inventory_hostname }} - {{ result }}"
+                      delegate_to: localhost
+
+          - name: maintenance
+            block:
+                    - name: Attempt to install some apps with apt
+                      apt:
+                              name: [bastet, sl, ninvaders]
+                              state: present
+                      become: yes
+                      when: ansible_os_family == 'Debian'
+
+                    - name: Attempt to install some apps with yum
+                      yum:
+                              name: [sl, moon-buggy]
+                              state: present
+                      become: yes
+                      when: ansible_os_family == "RedHat"
+
+            rescue:
+                    - name: Attempt to install some apps with apt
+                      apt:
+                              name: [bastet, sl, ninvaders]
+                              state: absent
+                      become: yes
+                      when: ansible_os_family == 'Debian'
+
+                    - name: Attempt to install some apps with yum
+                      yum:
+                              name: [sl, moon-buggy]
+                              state: absent
+                      become: yes
+                      when: ansible_os_family == "RedHat"
+
+                    - name: maintenance phase FAILED
+                      fail:
+                              msg: "Maintenance Failed! Rollback complete. Exiting playbook."
+            always:
+                    - name: write a log entry
+                      lineinfile:
+                              path: ~/errorhandling.log
+                              line: "{{ ansible_date_time.epoch }} - Ended maintenance phase - {{ inventory_hostname}} - {{ result }}"
+                              
+                      delegate_to: localhost   
+
